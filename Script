@@ -20,7 +20,7 @@ ScreenGui.Name = "DeadRailsCheatGUI"
 local SplashFrame = Instance.new("Frame")
 SplashFrame.Size = UDim2.new(1, 0, 1, 0)
 SplashFrame.Position = UDim2.new(0, 0, 0, 0)
-SplashFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SplashFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 SplashFrame.BackgroundTransparency = 1
 SplashFrame.Parent = ScreenGui
 
@@ -30,7 +30,7 @@ SplashText.Position = UDim2.new(0.5, -200, 0.5, -50)
 SplashText.BackgroundTransparency = 1
 SplashText.Text = "DrasticCorgi193 present"
 SplashText.TextColor3 = Color3.fromRGB(255, 255, 255)
-SplashText.Font = Enum.Font.SourceSansBold
+SplashText.Font = Enum.Font.GothamBold
 SplashText.TextSize = 40
 SplashText.TextTransparency = 1
 SplashText.Parent = SplashFrame
@@ -46,34 +46,39 @@ SplashFrame:Destroy()
 
 -- Основне меню
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0.05, 0) -- Ширше меню
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -225) -- Центр екрану
-MainFrame.BackgroundColor3 = Color3.fromRGB(220, 220, 230)
+MainFrame.Size = UDim2.new(0, 500, 0.6, 0)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 15)
-MainCorner.Parent = MainFrame
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 12)
+Corner.Parent = MainFrame
 
--- Верхня полоса (сірий фон)
+-- Верхня полоса (градієнтний фон)
 local TitleBar = Instance.new("Frame")
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
-TitleBar.BackgroundColor3 = Color3.fromRGB(150, 150, 150) -- Сірий фон
+TitleBar.Size = UDim2.new(1, 0, 0, 40)
+TitleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
 TitleBar.BorderSizePixel = 0
 TitleBar.Parent = MainFrame
 
-local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 15)
-TitleCorner.Parent = TitleBar
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 80, 90)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 50, 60))
+})
+Gradient.Rotation = 90
+Gradient.Parent = TitleBar
 
 local TitleText = Instance.new("TextLabel")
 TitleText.Size = UDim2.new(0.7, 0, 1, 0)
-TitleText.Text = "Made by DrasticCorgi193 V1.0"
+TitleText.Text = "Dead Rails Cheat Menu"
 TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleText.BackgroundTransparency = 1
-TitleText.Font = Enum.Font.SourceSansBold
-TitleText.TextSize = 16
+TitleText.Font = Enum.Font.GothamBold
+TitleText.TextSize = 18
 TitleText.Parent = TitleBar
 
 -- Кнопки управління
@@ -82,10 +87,10 @@ local function createButton(parent, size, pos, text, clickFunc)
     Button.Size = size
     Button.Position = pos
     Button.Text = text
-    Button.BackgroundColor3 = Color3.fromRGB(100, 100, 100) -- Темніший фон кнопок
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Білий текст
+    Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.BorderSizePixel = 0
-    Button.Font = Enum.Font.SourceSansBold
+    Button.Font = Enum.Font.GothamBold
     Button.TextSize = 14
     Button.Parent = parent
     
@@ -94,21 +99,45 @@ local function createButton(parent, size, pos, text, clickFunc)
     Corner.Parent = Button
     
     Button.MouseEnter:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(120, 120, 120)}):Play()
+        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(80, 80, 90)}):Play()
     end)
     Button.MouseLeave:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(100, 100, 100)}):Play()
+        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(60, 60, 70)}):Play()
     end)
     Button.MouseButton1Click:Connect(clickFunc)
     return Button
 end
 
-local HideButton = createButton(TitleBar, UDim2.new(0, 30, 0, 30), UDim2.new(1, -90, 0, 0), "H", function() end)
-local FullscreenButton = createButton(TitleBar, UDim2.new(0, 30, 0, 30), UDim2.new(1, -60, 0, 0), "F", function() end)
-local CloseButton = createButton(TitleBar, UDim2.new(0, 30, 0, 30), UDim2.new(1, -30, 0, 0), "X", function()
+local HideButton = createButton(TitleBar, UDim2.new(0, 30, 0, 30), UDim2.new(1, -90, 0.5, -15), "H", function() end)
+local FullscreenButton = createButton(TitleBar, UDim2.new(0, 30, 0, 30), UDim2.new(1, -60, 0.5, -15), "F", function() end)
+local CloseButton = createButton(TitleBar, UDim2.new(0, 30, 0, 30), UDim2.new(1, -30, 0.5, -15), "X", function()
     TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
     wait(0.5)
     ScreenGui:Destroy()
+end)
+
+-- Кнопка Show
+local ShowButton = Instance.new("TextButton")
+ShowButton.Size = UDim2.new(0, 60, 0, 30)
+ShowButton.Position = UDim2.new(0.5, -30, 0, -30)
+ShowButton.Text = "Show"
+ShowButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+ShowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ShowButton.BorderSizePixel = 0
+ShowButton.Font = Enum.Font.GothamBold
+ShowButton.TextSize = 14
+ShowButton.Parent = ScreenGui
+ShowButton.Visible = false
+
+local ShowCorner = Instance.new("UICorner")
+ShowCorner.CornerRadius = UDim.new(0, 8)
+ShowCorner.Parent = ShowButton
+
+ShowButton.MouseEnter:Connect(function()
+    TweenService:Create(ShowButton, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(80, 80, 90)}):Play()
+end)
+ShowButton.MouseLeave:Connect(function()
+    TweenService:Create(ShowButton, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(60, 60, 70)}):Play()
 end)
 
 -- Перетаскування вікна
@@ -137,19 +166,29 @@ TitleBar.InputEnded:Connect(function(input)
     end
 end)
 
--- Логіка сховати/повний екран
+-- Логіка сховати/показати
 local isHidden = false
 local defaultSize = MainFrame.Size
 local defaultPos = MainFrame.Position
 
 HideButton.MouseButton1Click:Connect(function()
     if not isHidden then
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -490, 0.5, -225)}):Play()
-        HideButton.Text = "S"
+        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -250, -0.6, 0)}):Play()
+        wait(0.5)
+        MainFrame.Visible = false
+        ShowButton.Visible = true
+        TweenService:Create(ShowButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -30, 0, 0)}):Play()
         isHidden = true
-    else
+    end
+end)
+
+ShowButton.MouseButton1Click:Connect(function()
+    if isHidden then
+        TweenService:Create(ShowButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -30, -0.6, 0)}):Play()
+        wait(0.5)
+        ShowButton.Visible = false
+        MainFrame.Visible = true
         TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = defaultPos}):Play()
-        HideButton.Text = "H"
         isHidden = false
     end
 end)
@@ -171,23 +210,23 @@ end)
 
 -- Прокручуваний контейнер для читів
 local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, -20, 1, -30)
-ScrollFrame.Position = UDim2.new(0, 10, 0, 15)
+ScrollFrame.Size = UDim2.new(1, -20, 1, -40)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 40)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.ScrollBarThickness = 8
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 700) -- Додано пустоту
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 750)
 ScrollFrame.Parent = MainFrame
 
 -- Функція створення переключателів
 local function createToggle(name, position, callback)
     local Toggle = Instance.new("TextButton")
-    Toggle.Size = UDim2.new(0, 450, 0, 40) -- Ширші кнопки
-    Toggle.Position = UDim2.new(0.5, -225, 0, position) -- Текст по центру
+    Toggle.Size = UDim2.new(0, 450, 0, 40)
+    Toggle.Position = UDim2.new(0.5, -225, 0, position)
     Toggle.Text = name .. ": OFF"
-    Toggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Чорний колір кнопок
-    Toggle.TextColor3 = Color3.fromRGB(255, 255, 255) -- Білий текст
+    Toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
     Toggle.BorderSizePixel = 0
-    Toggle.Font = Enum.Font.SourceSansBold
+    Toggle.Font = Enum.Font.GothamBold
     Toggle.TextSize = 16
     Toggle.Parent = ScrollFrame
     
@@ -199,7 +238,7 @@ local function createToggle(name, position, callback)
     Toggle.MouseButton1Click:Connect(function()
         enabled = not enabled
         Toggle.Text = name .. (enabled and ": ON" or ": OFF")
-        local targetColor = enabled and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 0, 0) -- Червоний при активації
+        local targetColor = enabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(40, 40, 50)
         TweenService:Create(Toggle, TweenInfo.new(0.3), {BackgroundColor3 = targetColor}):Play()
         callback(enabled)
     end)
@@ -212,9 +251,9 @@ local function createSection(name, position)
     Section.Size = UDim2.new(0, 450, 0, 30)
     Section.Position = UDim2.new(0.5, -225, 0, position)
     Section.Text = name
-    Section.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    Section.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
     Section.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Section.Font = Enum.Font.SourceSansBold
+    Section.Font = Enum.Font.GothamBold
     Section.TextSize = 16
     Section.Parent = ScrollFrame
     
@@ -226,7 +265,7 @@ local function createSection(name, position)
 end
 
 -- ESP
-local espSettings = {Players = false, Trains = false, Entities = false}
+local espSettings = {Players = false, Trains = false, Entities = false, Gold = false, Silver = false, Tickets = false}
 local function addESP(target, color)
     local highlight = Instance.new("Highlight")
     highlight.Adornee = target
@@ -255,6 +294,24 @@ local function updateESP(enabled, type)
                     addESP(obj, Color3.fromRGB(255, 255, 0))
                 end
             end
+        elseif type == "Gold" then
+            for _, obj in pairs(Workspace:GetDescendants()) do
+                if obj.Name:match("Gold") then
+                    addESP(obj, Color3.fromRGB(255, 215, 0))
+                end
+            end
+        elseif type == "Silver" then
+            for _, obj in pairs(Workspace:GetDescendants()) do
+                if obj.Name:match("Silver") then
+                    addESP(obj, Color3.fromRGB(192, 192, 192))
+                end
+            end
+        elseif type == "Tickets" then
+            for _, obj in pairs(Workspace:GetDescendants()) do
+                if obj.Name:match("Ticket") then
+                    addESP(obj, Color3.fromRGB(0, 255, 255))
+                end
+            end
         end
     else
         for _, obj in pairs(Workspace:GetDescendants()) do
@@ -272,6 +329,12 @@ Workspace.DescendantAdded:Connect(function(descendant)
         addESP(descendant, Color3.fromRGB(0, 0, 255))
     elseif espSettings.Entities and descendant:FindFirstChild("Humanoid") and not Players:GetPlayerFromCharacter(descendant) then
         addESP(descendant, Color3.fromRGB(255, 255, 0))
+    elseif espSettings.Gold and descendant.Name:match("Gold") then
+        addESP(descendant, Color3.fromRGB(255, 215, 0))
+    elseif espSettings.Silver and descendant.Name:match("Silver") then
+        addESP(descendant, Color3.fromRGB(192, 192, 192))
+    elseif espSettings.Tickets and descendant.Name:match("Ticket") then
+        addESP(descendant, Color3.fromRGB(0, 255, 255))
     end
 end)
 
@@ -313,7 +376,9 @@ Workspace.DescendantAdded:Connect(function(descendant)
 end)
 
 -- NightVision
+local nightVisionEnabled = false
 local function toggleNightVision(enabled)
+    nightVisionEnabled = enabled
     if enabled then
         Lighting.Ambient = Color3.fromRGB(100, 100, 100)
         Lighting.Brightness = 2
@@ -323,8 +388,17 @@ local function toggleNightVision(enabled)
     end
 end
 
+Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function()
+    if nightVisionEnabled then
+        toggleNightVision(false)
+        wait(0.1)
+        toggleNightVision(true)
+    end
+end)
+
 -- Noclip
 local noclip = false
+local wasNoclipEnabled = false
 RunService.Stepped:Connect(function()
     if noclip and Character then
         for _, part in pairs(Character:GetDescendants()) do
@@ -335,14 +409,14 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- Speed (слабкий буст)
+-- Speed (трохи швидший буст)
 local speedEnabled = false
 local function toggleSpeed(enabled)
     speedEnabled = enabled
     if enabled then
         spawn(function()
             while speedEnabled do
-                Humanoid.WalkSpeed = 18
+                Humanoid.WalkSpeed = 20
                 wait(0.2)
                 Humanoid.WalkSpeed = 16
                 wait(0.2)
@@ -352,7 +426,7 @@ local function toggleSpeed(enabled)
     end
 end
 
--- Autoaim (не цілимось на мертвих)
+-- Autoaim (не цілимось на мертвих, через стіни, плавніше)
 local autoaimEnabled = false
 local function toggleAutoaim(enabled)
     autoaimEnabled = enabled
@@ -360,7 +434,7 @@ local function toggleAutoaim(enabled)
         spawn(function()
             while autoaimEnabled do
                 local closestTarget = nil
-                local closestDist = 50 -- Радіус дії
+                local closestDist = 50
                 local camera = Workspace.CurrentCamera
                 local camPos = camera.CFrame.Position
 
@@ -370,18 +444,24 @@ local function toggleAutoaim(enabled)
                     if humanoid and head and not Players:GetPlayerFromCharacter(obj) and humanoid.Health > 0 then
                         local dist = (head.Position - camPos).Magnitude
                         if dist < closestDist then
-                            closestDist = dist
-                            closestTarget = head
+                            local ray = Ray.new(camPos, (head.Position - camPos).Unit * dist)
+                            local hit = Workspace:FindPartOnRayWithIgnoreList(ray, {Character})
+                            if not hit or hit:IsDescendantOf(obj) then
+                                closestDist = dist
+                                closestTarget = head
+                            end
                         end
                     end
                 end
 
                 if closestTarget then
                     local targetPos = closestTarget.Position
-                    camera.CFrame = CFrame.new(camPos, targetPos)
+                    local currentCFrame = camera.CFrame
+                    local newCFrame = CFrame.new(camPos, targetPos)
+                    camera.CFrame = currentCFrame:Lerp(newCFrame, 0.1)
                 end
 
-                wait(0.01)
+                wait(0.05)
             end
         end)
     end
@@ -413,6 +493,44 @@ local function toggleUpPlayer(enabled)
     end
 end
 
+-- Third Person
+local thirdPersonEnabled = false
+local function toggleThirdPerson(enabled)
+    thirdPersonEnabled = enabled
+    if enabled then
+        spawn(function()
+            while thirdPersonEnabled do
+                local cam = Workspace.CurrentCamera
+                cam.CameraType = Enum.CameraType.Scriptable
+                cam.CFrame = CFrame.new(RootPart.Position - Vector3.new(5, 0, 5), RootPart.Position)
+                wait()
+            end
+            Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+        end)
+    end
+end
+
+-- Обробка смерті та відродження для Noclip
+Player.CharacterAdded:Connect(function(char)
+    Character = char
+    Humanoid = char:WaitForChild("Humanoid")
+    RootPart = char:WaitForChild("HumanoidRootPart")
+    if wasNoclipEnabled then
+        noclip = false
+        wait(10)
+        noclip = true
+    end
+end)
+
+Humanoid.Died:Connect(function()
+    if noclip then
+        wasNoclipEnabled = true
+        noclip = false
+    else
+        wasNoclipEnabled = false
+    end
+end)
+
 -- Додавання переключателів з секторами
 local yPos = 10
 
@@ -420,7 +538,11 @@ yPos = createSection("Visual", yPos)
 createToggle("ESP Players", yPos, function(enabled) espSettings.Players = enabled; updateESP(enabled, "Players") end); yPos = yPos + 50
 createToggle("ESP Trains", yPos, function(enabled) espSettings.Trains = enabled; updateESP(enabled, "Trains") end); yPos = yPos + 50
 createToggle("ESP Entities", yPos, function(enabled) espSettings.Entities = enabled; updateESP(enabled, "Entities") end); yPos = yPos + 50
+createToggle("ESP Gold", yPos, function(enabled) espSettings.Gold = enabled; updateESP(enabled, "Gold") end); yPos = yPos + 50
+createToggle("ESP Silver", yPos, function(enabled) espSettings.Silver = enabled; updateESP(enabled, "Silver") end); yPos = yPos + 50
+createToggle("ESP Tickets", yPos, function(enabled) espSettings.Tickets = enabled; updateESP(enabled, "Tickets") end); yPos = yPos + 50
 createToggle("NightVision", yPos, toggleNightVision); yPos = yPos + 50
+createToggle("Third Person", yPos, toggleThirdPerson); yPos = yPos + 50
 
 yPos = createSection("Attack", yPos)
 createToggle("Autoaim (Entities)", yPos, toggleAutoaim); yPos = yPos + 50
@@ -434,18 +556,13 @@ yPos = createSection("Other", yPos)
 createToggle("Money Hack (99999$)", yPos, toggleMoneyHack); yPos = yPos + 50
 createToggle("Up Player", yPos, toggleUpPlayer); yPos = yPos + 50
 
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 700) -- Пустота внизу
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 850)
 
 -- Анімація появи GUI
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0.05, 0), Position = UDim2.new(0.5, -250, 0.5, -225)}):Play()
+TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0.6, 0), Position = UDim2.new(0.5, -250, 0.5, -150)}):Play()
 
--- Оновлення персонажа при респавні
-Player.CharacterAdded:Connect(function(char)
-    Character = char
-    Humanoid = char:WaitForChild("Humanoid")
-    RootPart = char:WaitForChild("HumanoidRootPart")
-end)
+print("Dead Rails Exploit V1.1 Loaded with New Menu and Features!")
 
-print("Dead Rails Exploit Loaded with Splash and Updated Design!")
+
