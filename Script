@@ -214,7 +214,7 @@ ScrollFrame.Size = UDim2.new(1, -20, 1, -40)
 ScrollFrame.Position = UDim2.new(0, 10, 0, 40)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.ScrollBarThickness = 8
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 750)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 900) -- Збільшено для нового переключателя
 ScrollFrame.Parent = MainFrame
 
 -- Функція створення переключателів
@@ -245,6 +245,33 @@ local function createToggle(name, position, callback)
     return Toggle
 end
 
+-- Функція створення кнопок
+local function createActionButton(name, position, clickFunc)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(0, 450, 0, 40)
+    Button.Position = UDim2.new(0.5, -225, 0, position)
+    Button.Text = name
+    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.BorderSizePixel = 0
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 16
+    Button.Parent = ScrollFrame
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.Parent = Button
+    
+    Button.MouseEnter:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(80, 80, 90)}):Play()
+    end)
+    Button.MouseLeave:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(40, 40, 50)}):Play()
+    end)
+    Button.MouseButton1Click:Connect(clickFunc)
+    return Button
+end
+
 -- Сектори
 local function createSection(name, position)
     local Section = Instance.new("TextLabel")
@@ -262,6 +289,47 @@ local function createSection(name, position)
     Corner.Parent = Section
     
     return position + 40
+end
+
+-- Функція створення таймера
+local function createTimerUI()
+    local timerGui = Instance.new("ScreenGui")
+    timerGui.Parent = game.CoreGui
+    timerGui.Name = "TimerGui"
+
+    local timerFrame = Instance.new("Frame", timerGui)
+    timerFrame.Size = UDim2.new(0, 220, 0, 60)
+    timerFrame.Position = UDim2.new(0.5, -110, 0, 10)
+    timerFrame.AnchorPoint = Vector2.new(0.5, 0)
+    timerFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    timerFrame.BorderSizePixel = 2
+    timerFrame.BorderColor3 = Color3.fromRGB(255, 85, 85)
+
+    local timerLabel = Instance.new("TextLabel", timerFrame)
+    timerLabel.Size = UDim2.new(1, 0, 1, 0)
+    timerLabel.Text = "10:00"
+    timerLabel.TextColor3 = Color3.fromRGB(255, 85, 85)
+    timerLabel.Font = Enum.Font.GothamBlack
+    timerLabel.TextSize = 32
+    timerLabel.BackgroundTransparency = 1
+
+    return timerLabel, timerGui
+end
+
+local timerLabel, timerGui = createTimerUI()
+timerGui.Enabled = false -- Таймер спочатку вимкнений
+
+local function startTimer(duration)
+    timerGui.Enabled = true
+    local endTime = tick() + duration
+    spawn(function()
+        while tick() < endTime do
+            local remaining = endTime - tick()
+            timerLabel.Text = string.format("%02d:%02d", math.floor(remaining / 60), math.floor(remaining % 60))
+            wait(0.1)
+        end
+        timerLabel.Text = "00:00"
+    end)
 end
 
 -- ESP
@@ -375,8 +443,9 @@ Workspace.DescendantAdded:Connect(function(descendant)
     end
 end)
 
--- NightVision
+-- NightVision (виправлено мерехтіння)
 local nightVisionEnabled = false
+local lastClockTime = Lighting.ClockTime
 local function toggleNightVision(enabled)
     nightVisionEnabled = enabled
     if enabled then
@@ -390,9 +459,13 @@ end
 
 Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function()
     if nightVisionEnabled then
-        toggleNightVision(false)
-        wait(0.1)
-        toggleNightVision(true)
+        local currentClockTime = Lighting.ClockTime
+        if (lastClockTime < 6 and currentClockTime >= 6) or (lastClockTime >= 6 and currentClockTime < 6) then
+            toggleNightVision(false)
+            wait(10) -- Затримка 10 секунд перед перезапуском
+            toggleNightVision(true)
+        end
+        lastClockTime = currentClockTime
     end
 end)
 
@@ -426,7 +499,7 @@ local function toggleSpeed(enabled)
     end
 end
 
--- Autoaim (не цілимось на мертвих, через стіни, плавніше)
+-- Autoaim (чітке прицілювання без плавності)
 local autoaimEnabled = false
 local function toggleAutoaim(enabled)
     autoaimEnabled = enabled
@@ -456,9 +529,8 @@ local function toggleAutoaim(enabled)
 
                 if closestTarget then
                     local targetPos = closestTarget.Position
-                    local currentCFrame = camera.CFrame
                     local newCFrame = CFrame.new(camPos, targetPos)
-                    camera.CFrame = currentCFrame:Lerp(newCFrame, 0.1)
+                    camera.CFrame = newCFrame -- Чітке прицілювання без Lerp
                 end
 
                 wait(0.05)
@@ -510,6 +582,67 @@ local function toggleThirdPerson(enabled)
     end
 end
 
+-- NPC Lock
+local NPCConfig = {
+    Enabled = false,
+    MaxDistance = 5000,
+    UpdateRate = 0.1,
+    LastUpdate = 0
+}
+
+local function GetClosestNPC()
+    local closest = nil
+    local minDistance = NPCConfig.MaxDistance
+    local playerPos = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    
+    if not playerPos then return nil end
+    playerPos = playerPos.Position
+    
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") then
+            local isPlayer = false
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr.Character == obj then
+                    isPlayer = true
+                    break
+                end
+            end
+            
+            if not isPlayer then
+                local distance = (obj.HumanoidRootPart.Position - playerPos).Magnitude
+                if distance < minDistance then
+                    minDistance = distance
+                    closest = obj
+                end
+            end
+        end
+    end
+    
+    return closest
+end
+
+local function UpdateNPCLock()
+    if not NPCConfig.Enabled then return end
+    
+    local currentTime = tick()
+    if currentTime - NPCConfig.LastUpdate < NPCConfig.UpdateRate then return end
+    NPCConfig.LastUpdate = currentTime
+    
+    local target = GetClosestNPC()
+    if target and target:FindFirstChild("Humanoid") then
+        Workspace.CurrentCamera.CameraSubject = target.Humanoid
+    else
+        Workspace.CurrentCamera.CameraSubject = Player.Character and Player.Character:FindFirstChild("Humanoid")
+    end
+end
+
+local function toggleNPCLock(enabled)
+    NPCConfig.Enabled = enabled
+    if not enabled then
+        Workspace.CurrentCamera.CameraSubject = Player.Character and Player.Character:FindFirstChild("Humanoid")
+    end
+end
+
 -- Обробка смерті та відродження для Noclip
 Player.CharacterAdded:Connect(function(char)
     Character = char
@@ -531,7 +664,7 @@ Humanoid.Died:Connect(function()
     end
 end)
 
--- Додавання переключателів з секторами
+-- Додавання переключателів і кнопок із секторами
 local yPos = 10
 
 yPos = createSection("Visual", yPos)
@@ -547,22 +680,39 @@ createToggle("Third Person", yPos, toggleThirdPerson); yPos = yPos + 50
 yPos = createSection("Attack", yPos)
 createToggle("Autoaim (Entities)", yPos, toggleAutoaim); yPos = yPos + 50
 createToggle("Hitbox", yPos, toggleHitbox); yPos = yPos + 50
+createToggle("NPC Lock", yPos, toggleNPCLock); yPos = yPos + 50
 
 yPos = createSection("Movement", yPos)
 createToggle("Noclip", yPos, function(enabled) noclip = enabled end); yPos = yPos + 50
 createToggle("Speed (Subtle)", yPos, toggleSpeed); yPos = yPos + 50
 
+yPos = createSection("Teleport", yPos)
+createActionButton("Bypass to End", yPos, function()
+    Player.Character:PivotTo(CFrame.new(-346, -69, -49060))
+    startTimer(600) -- Запускаємо таймер на 10 хвилин (600 секунд)
+end); yPos = yPos + 50
+
 yPos = createSection("Other", yPos)
 createToggle("Money Hack (99999$)", yPos, toggleMoneyHack); yPos = yPos + 50
 createToggle("Up Player", yPos, toggleUpPlayer); yPos = yPos + 50
 
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 850)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
+
+-- Оновлення NPC Lock у циклі
+RunService.RenderStepped:Connect(function()
+    if noclip and Character then
+        for _, part in pairs(Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+    UpdateNPCLock()
+end)
 
 -- Анімація появи GUI
 MainFrame.Size = UDim2.new(0, 0, 0, 0)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0.6, 0), Position = UDim2.new(0.5, -250, 0.5, -150)}):Play()
 
-print("Dead Rails Exploit V1.1 Loaded with New Menu and Features!")
-
-
+print("Dead Rails Exploit V1.2 Loaded with Teleport Section, Fixed Autoaim, NightVision, and NPC Lock!")
