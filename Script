@@ -688,7 +688,7 @@ createToggle("Speed (Subtle)", yPos, toggleSpeed); yPos = yPos + 50
 
 yPos = createSection("Teleport", yPos)
 createActionButton("Bypass to End", yPos, function()
-    Player.Character:PivotTo(CFrame.new(-346, -69, -49060))
+    Player.Character:PivotTo(CFrame.new(-333, -69, -49111))
     startTimer(600) -- Запускаємо таймер на 10 хвилин (600 секунд)
 end); yPos = yPos + 50
 
